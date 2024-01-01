@@ -25,12 +25,13 @@ class CalorieTracker {
     }
 
     // Private Methods
-    #renderStats() {
-        this.#displayCaloriesTotal();
-        this.#displayCalorieLimit();
-        this.#displayCaloriesRemaining();
-        this.#displayCaloriesConsumed();
-        this.#displayCaloriesBurned();
+
+    #displayProgressBar() {
+        const progressBarEl = document.querySelector('#calorie-progress');
+        const progressPercent = (this.#totalCalories / this.#calorieLimit) * 100;
+        const width = Math.min(progressPercent, 100);
+
+        progressBarEl.style.width = `${width}%`;
     }
 
     #displayCaloriesTotal() {
@@ -52,6 +53,20 @@ class CalorieTracker {
     #displayCaloriesRemaining() {
         const calorieRemaining = document.querySelector('#calories-remaining');
         calorieRemaining.textContent = this.#calorieLimit - this.#totalCalories;
+        const progressBarEl = document.querySelector('#calorie-progress');
+
+        if (calorieRemaining.textContent < 0) {
+            calorieRemaining.parentElement.parentElement.classList.remove('bg-light');
+            calorieRemaining.parentElement.parentElement.classList.add('bg-danger');
+
+            progressBarEl.classList.remove('bg-sucess');
+            progressBarEl.classList.add('bg-danger');
+        } else {
+            calorieRemaining.parentElement.parentElement.classList.remove('bg-danger');
+            calorieRemaining.parentElement.parentElement.classList.add('bg-light');
+            progressBarEl.classList.add('bg-sucess');
+            progressBarEl.classList.remove('bg-danger');
+        }
     }
 
     #displayCaloriesConsumed(calories) {
@@ -66,7 +81,14 @@ class CalorieTracker {
         calorieBurned.textContent = totalBurned;
     }
 
-
+    #renderStats() {
+        this.#displayCaloriesTotal();
+        this.#displayCalorieLimit();
+        this.#displayCaloriesRemaining();
+        this.#displayCaloriesConsumed();
+        this.#displayCaloriesBurned();;
+        this.#displayProgressBar()
+    }
 }
 
 class Meal {
@@ -90,7 +112,7 @@ const calorieTracker = new CalorieTracker();
 
 // Initialize a meal
 const breakfast = new Meal('Toast', 200);
-const lunch = new Meal('Sandwich', 500);
+const lunch = new Meal('Sandwich', 2000);
 
 calorieTracker.resetDay();
 calorieTracker.addMeal(breakfast);
@@ -99,6 +121,8 @@ calorieTracker.addMeal(lunch);
 // Initialize a workout
 const run = new Workout('Morning Jog', 100);
 const yoga = new Workout('Yoga', 50);
+const yoga2 = new Workout('Yoga2', 50);
 
 calorieTracker.addWorkout(run);
 calorieTracker.addWorkout(yoga);
+calorieTracker.addWorkout(yoga2);
