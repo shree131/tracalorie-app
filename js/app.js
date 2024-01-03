@@ -8,12 +8,14 @@ class CalorieTracker {
     addMeal(meal) {
         this.#meals.push(meal);
         this.#totalCalories += meal.calories;
+        this.#displayNewMeal(meal);
         this.#renderStats();
     }
 
     addWorkout(workout) {
         this.#workouts.push(workout);
         this.#totalCalories -= workout.calories;
+        this.#displayNewWorkout(workout);
         this.#renderStats();
     }
 
@@ -21,6 +23,9 @@ class CalorieTracker {
         this.#totalCalories = 0;
         this.#meals = [];
         this.#workouts = [];
+
+        document.querySelector('#meal-items').innerHTML = '';
+        document.querySelector('#workout-items').innerHTML = '';
         this.#renderStats();
     }
 
@@ -81,6 +86,57 @@ class CalorieTracker {
         calorieBurned.textContent = totalBurned;
     }
 
+    #displayNewMeal(meal) {
+        // Add to DOM
+        const divCards = document.querySelector(`#meal-items`);
+        const mealEl = document.createElement('div');
+
+        mealEl.classList.add('card', 'my-2');
+        mealEl.setAttribute('data-id', meal.id);
+
+        mealEl.innerHTML = `<div class="card-body">
+            <div class="d-flex align-items-center justify-content-between">
+                <h4 class="mx-1">${meal.name}</h4>
+                <div
+                    class="fs-1 bg-primary text-white text-center rounded-2 px-2 px-sm-5"
+                >
+                    ${parseInt(meal.calories)}
+                </div>
+                <button class="delete btn btn-danger btn-sm mx-2">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+        </div>`;
+
+        divCards.appendChild(mealEl);
+    }
+
+    #displayNewWorkout(workout) {
+        // Add to DOM
+        const divCards = document.querySelector('#workout-items');
+        const workoutEl = document.createElement('div');
+
+        workoutEl.classList.add('card', 'my-2');
+        workoutEl.setAttribute('data-id', workout.id)
+
+        workoutEl.innerHTML = `<div class="card-body">
+        <div class="d-flex align-items-center justify-content-between">
+            <h4 class="mx-1">${workout.name}</h4>
+            <div
+                class="fs-1 bg-secondary text-white text-center rounded-2 px-2 px-sm-5"
+            >
+                ${parseInt(workout.calories)}
+            </div>
+            <button class="delete btn btn-danger btn-sm mx-2">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+    </div>`;
+
+        divCards.appendChild(workoutEl);
+    }
+
+    // Render Stats to DOM
     #renderStats() {
         this.#displayCaloriesTotal();
         this.#displayCalorieLimit();
@@ -107,22 +163,40 @@ class Workout {
     }
 }
 
-// Initialize Calorie Tracker
-const calorieTracker = new CalorieTracker();
+class App {
+    // Initialize Calorie Tracker
+    #tracker = new CalorieTracker();
 
-// Initialize a meal
-const breakfast = new Meal('Toast', 200);
-const lunch = new Meal('Sandwich', 2000);
+    constructor() {
+        document.querySelector('#meal-form').addEventListener('submit', this.#newItem.bind(this, 'meal'));
+        document.querySelector('#workout-form').addEventListener('submit', this.#newItem.bind(this, 'workout'));
+    }
 
-calorieTracker.resetDay();
-calorieTracker.addMeal(breakfast);
-calorieTracker.addMeal(lunch);
+    #newItem(type, e) {
+        e.preventDefault();
+        const name = document.querySelector(`#${type}-name`).value;
+        const calories = document.querySelector(`#${type}-calories`).value;
 
-// Initialize a workout
-const run = new Workout('Morning Jog', 100);
-const yoga = new Workout('Yoga', 50);
-const yoga2 = new Workout('Yoga2', 50);
+        // Validate input
+        if (name === '' || calories === '') {
+            alert('Input fields cannot be empty.');
+            return;
+        }
 
-calorieTracker.addWorkout(run);
-calorieTracker.addWorkout(yoga);
-calorieTracker.addWorkout(yoga2);
+        // Initialize a meal and add to tracker
+        type === 'meal' ? this.#tracker.addMeal(new Meal(name, parseInt(calories))) : this.#tracker.addWorkout(new Workout(name, calories));
+
+        // Clear input fields
+        document.querySelector(`#${type}-name`).value = '';
+        document.querySelector(`#${type}-calories`).value = '';
+
+        // Colapse bootstrap
+        const collapseMeal = document.querySelector(`#collapse-${type}`);
+        const bsCollapse = new bootstrap.Collapse(collapseMeal, {
+            toggle: true
+        });
+    }
+
+}
+
+const app = new App();
