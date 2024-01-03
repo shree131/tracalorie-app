@@ -56,6 +56,11 @@ class CalorieTracker {
         this.#renderStats();
     }
 
+    setLimit(limitValue) {
+        this.#calorieLimit = limitValue;
+        this.#renderStats();
+    }
+
     // Private Methods
 
     #displayProgressBar() {
@@ -209,6 +214,9 @@ class App {
 
         // Reset Day
         document.querySelector('#reset').addEventListener('click', this.#reset.bind(this));
+
+        // Set Calorie Limit
+        document.querySelector('#limit-form').addEventListener('submit', this.#setLimit.bind(this));
     }
 
     #newItem(type, e) {
@@ -269,6 +277,22 @@ class App {
 
     #reset(e) {
         this.#tracker.resetDay();
+    }
+
+    #setLimit(e) {
+        e.preventDefault();
+        const input = document.querySelector('#limit').value;
+
+        if (Number.isInteger(parseInt(input)) && input >= 0) {
+            this.#tracker.setLimit(parseInt(input));
+
+            const modalEl = document.querySelector('#limit-modal');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            modal.hide();
+        } else {
+            alert('Please enter a valid value.');
+            return;
+        }
     }
 
 }
