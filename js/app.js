@@ -50,6 +50,9 @@ class CalorieTracker {
 
         document.querySelector('#meal-items').innerHTML = '';
         document.querySelector('#workout-items').innerHTML = '';
+
+        document.querySelector('#filter-meals').value = '';
+        document.querySelector('#filter-workouts').value = '';
         this.#renderStats();
     }
 
@@ -199,6 +202,13 @@ class App {
         // Delete Items Event Listeners
         document.querySelector('#meal-items').addEventListener('click', this.#removeItem.bind(this, 'meal'));
         document.querySelector('#workout-items').addEventListener('click', this.#removeItem.bind(this, 'workout'));
+
+        // Filter Event Listener
+        document.querySelector('#filter-meals').addEventListener('keyup', this.#filterItems.bind(this, 'meal'));
+        document.querySelector('#filter-workouts').addEventListener('keyup', this.#filterItems.bind(this, 'workout'));
+
+        // Reset Day
+        document.querySelector('#reset').addEventListener('click', this.#reset.bind(this));
     }
 
     #newItem(type, e) {
@@ -242,8 +252,23 @@ class App {
         // Remove meal from calorie tracker - subtract calories (target.parentElx3)
         type == 'meal' ?
             this.#tracker.removeMeal(id) : this.#tracker.removeWorkout(id);
+    }
 
+    #filterItems(type, e) {
+        const filterText = e.target.value.toLowerCase();
+        console.log(filterText);
+        document.querySelectorAll(`#${type}-items .card`).forEach(item => {
+            const name = item.firstElementChild.firstElementChild.textContent;
+            if (name.toLowerCase().includes(filterText)) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
 
+    #reset(e) {
+        this.#tracker.resetDay();
     }
 
 }
