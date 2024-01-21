@@ -1,3 +1,8 @@
+import './css/bootstrap.css';
+import { Modal, Collapse } from 'bootstrap';
+import '.css/style.css';
+import '@fortawesome/fontawesome-free/js/all';
+
 class CalorieTracker {
     #calorieLimit = Storage.getCalorieLimit();
     #totalCalories = Storage.getTotalCalories();
